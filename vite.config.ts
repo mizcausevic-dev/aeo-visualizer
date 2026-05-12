@@ -3,10 +3,10 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig } from 'vite';
 
-// GitHub Pages serves this app at /aeo-visualizer/ on a project page.
-// Setting `base` lets Vite emit correct asset paths in the built bundle.
+// Served from the custom domain `aeo.kineticgain.com` at the root.
+// `public/CNAME` tells GitHub Pages to bind that domain to this site.
 export default defineConfig({
-  base: process.env.GITHUB_ACTIONS ? '/aeo-visualizer/' : '/',
+  base: '/',
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {

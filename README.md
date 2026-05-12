@@ -2,7 +2,7 @@
 
 Interactive web visualizer for [AEO Protocol](https://github.com/mizcausevic-dev/aeo-protocol-spec) declarations. Paste any `/.well-known/aeo.json` document — or write one in the JSON editor — and see entity, authority, claims, and citation preferences rendered as a clean card layout.
 
-**Live:** https://mizcausevic-dev.github.io/aeo-visualizer/
+**Live:** https://aeo.kineticgain.com
 
 ## What it does
 
@@ -14,8 +14,8 @@ Interactive web visualizer for [AEO Protocol](https://github.com/mizcausevic-dev
 
 Append `?view=visualizer | editor | about` to deep-link any view:
 
-- `https://mizcausevic-dev.github.io/aeo-visualizer/?view=editor`
-- `https://mizcausevic-dev.github.io/aeo-visualizer/?view=about`
+- `https://aeo.kineticgain.com?view=editor`
+- `https://aeo.kineticgain.com?view=about`
 
 ## Run locally
 
