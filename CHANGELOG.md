@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented here.
 
+## [1.1.0] - 2026-05-24
+
+### Redesigned — dark UI + Spec Explorer
+- Full dark redesign of the visualizer (entity card, Authority, claims, answer
+  constraints, citation preferences) — replaces the light "naked" v1 surface.
+- New **Spec Explorer** tab: browses the live `aeo-protocol-spec` repository
+  (file tree + markdown/JSON rendering) entirely client-side — no server, no
+  API key. Binary/image files handled gracefully.
+- Realigned the "Three Pillars" / About to the real AEO model: **Declare**
+  (`/.well-known/aeo.json`), **Authority** (primary sources + **ed25519**
+  verifications), **Constrain & Cite** (answer constraints + citation prefs).
+- Cross-model: visual concept from a Google AI Studio (Gemini) applet, then
+  hardened, de-scaffolded, made fully static, and realigned to the canonical
+  spec by Claude Code. Stays a pure static SPA deployed to aeo.kineticgain.com.
+
 ## [1.0.0] - 2026-05-12
 
 ### Released
