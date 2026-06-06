@@ -1,4 +1,4 @@
-name: Build and Deploy to Hostinger
+name: Build and Deploy to Hostinger over SSH
 
 on:
   push:
@@ -10,9 +10,11 @@ permissions:
 
 jobs:
   deploy:
-    name: Build dist/ and FTP-sync to aeo.kineticgain.com
+    name: Build dist/ and SSH-sync to aeo.kineticgain.com
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,49 +38,66 @@ jobs:
           echo "OK: dist/ verified"
           ls -lah dist/
 
-      - name: FTP-Deploy dist/ to /aeo/ (first attempt)
-        id: deploy
-        timeout-minutes: 5
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        continue-on-error: true
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          protocol: ftps
-          port: 21
-          timeout: 60000
-          local-dir: ./dist/
-          server-dir: /aeo/
-          dangerous-clean-slate: false
-          log-level: standard
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.DS_Store
+      - name: Verify SSH secrets are present
+        run: |
+          test -n "${{ secrets.SSH_HOST }}" || (echo "FAIL: missing SSH_HOST" && exit 1)
+          test -n "${{ secrets.SSH_PORT }}" || (echo "FAIL: missing SSH_PORT" && exit 1)
+          test -n "${{ secrets.SSH_USER }}" || (echo "FAIL: missing SSH_USER" && exit 1)
+          test -n "${{ secrets.SSH_PRIVATE_KEY }}" || (echo "FAIL: missing SSH_PRIVATE_KEY" && exit 1)
+          test -n "$SSH_TARGET_DIR" || (echo "FAIL: missing SSH_TARGET_DIR" && exit 1)
+          echo "OK: SSH deploy secrets are configured"
 
-      - name: Sleep before retry (let FTP cap drain)
-        if: steps.deploy.outcome == 'failure'
-        run: sleep 60
+      - name: Install SSH key
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/hostinger_deploy_key
+          chmod 600 ~/.ssh/hostinger_deploy_key
+          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          chmod 644 ~/.ssh/known_hosts
 
-      - name: Retry FTP-Deploy if first attempt failed
-        if: steps.deploy.outcome == 'failure'
-        timeout-minutes: 5
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_HOST }}
-          username: ${{ secrets.FTP_USER }}
-          password: ${{ secrets.FTP_PASS }}
-          protocol: ftps
-          port: 21
-          timeout: 90000
-          local-dir: ./dist/
-          server-dir: /aeo/
-          dangerous-clean-slate: false
-          log-level: verbose
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/node_modules/**
-            **/.DS_Store
+      - name: Prepare remote target
+        run: |
+          ssh -i ~/.ssh/hostinger_deploy_key \
+            -p "${{ secrets.SSH_PORT }}" \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}" \
+            "mkdir -p \"$SSH_TARGET_DIR\" && test -d \"$SSH_TARGET_DIR\""
+
+      - name: SSH-sync dist/ to AEO document root
+        run: |
+          rsync -az --checksum \
+            --chmod=Du=rwx,Dgo=rx,Fu=rw,Fgo=r \
+            -e "ssh -i ~/.ssh/hostinger_deploy_key -p ${{ secrets.SSH_PORT }} -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes" \
+            ./dist/ "${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:$SSH_TARGET_DIR/"
+
+      - name: Verify live AEO page
+        run: |
+          python - <<'PY'
+          import sys
+          import time
+          import urllib.request
+
+          url = "https://aeo.kineticgain.com/"
+          markers = [
+              "AEO Visualizer",
+              "citation-ready proof",
+              "Answer-engine operating layer",
+          ]
+
+          for attempt in range(1, 7):
+              try:
+                  with urllib.request.urlopen(url, timeout=20) as response:
+                      body = response.read().decode("utf-8", errors="replace")
+                  missing = [marker for marker in markers if marker not in body]
+                  if not missing:
+                      print(f"OK: {url} verified on attempt {attempt}")
+                      sys.exit(0)
+                  print(f"Attempt {attempt}: missing markers {missing}")
+              except Exception as exc:
+                  print(f"Attempt {attempt}: {exc}")
+              time.sleep(10)
+
+          print("FAIL: live AEO page did not match deployed build")
+          sys.exit(1)
+          PY
