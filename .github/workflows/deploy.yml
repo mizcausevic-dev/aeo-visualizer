@@ -52,7 +52,14 @@ jobs:
           install -m 700 -d ~/.ssh
           printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/hostinger_deploy_key
           chmod 600 ~/.ssh/hostinger_deploy_key
-          ssh-keyscan -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts
+          for attempt in 1 2 3 4 5; do
+            if ssh-keyscan -T 15 -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_HOST }}" >> ~/.ssh/known_hosts; then
+              break
+            fi
+            echo "ssh-keyscan attempt ${attempt} failed; retrying"
+            sleep 5
+          done
+          test -s ~/.ssh/known_hosts || (echo "FAIL: unable to capture SSH host key" && exit 1)
           chmod 644 ~/.ssh/known_hosts
 
       - name: Prepare remote target
