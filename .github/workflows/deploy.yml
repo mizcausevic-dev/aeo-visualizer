@@ -17,7 +17,7 @@ jobs:
       SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Setup Node 22
         uses: actions/setup-node@v4
