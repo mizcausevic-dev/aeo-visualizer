@@ -37,13 +37,21 @@ const Badge = ({ children, className = '' }: { children: React.ReactNode; classN
 
 const SectionHeader = ({ icon: Icon, title, subtitle }: { icon: any; title: string; subtitle?: string }) => (
   <div className="flex items-center gap-3 mb-6">
-    <div className="p-2 bg-blue-500/15 text-blue-300 rounded-lg border border-blue-500/20">
+    <div className="p-2 bg-cyan-400/10 text-cyan-200 rounded-lg border border-cyan-300/20">
       <Icon size={20} />
     </div>
     <div>
       <h2 className="text-xl font-semibold text-white leading-tight">{title}</h2>
       {subtitle && <p className="text-sm text-slate-400 font-normal">{subtitle}</p>}
     </div>
+  </div>
+);
+
+const MetricCard = ({ label, value, detail }: { label: string; value: string; detail: string }) => (
+  <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-5 shadow-[0_20px_80px_rgba(0,0,0,0.22)]">
+    <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-emerald-300">{label}</p>
+    <p className="mt-3 text-3xl font-semibold text-stone-100">{value}</p>
+    <p className="mt-2 text-sm leading-relaxed text-slate-400">{detail}</p>
   </div>
 );
 
@@ -86,7 +94,7 @@ const ClaimCard = ({ claim, index }: { claim: AEOClaim; index: number }) => {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.05 * index }}
-      className="group bg-slate-900/70 border border-slate-800 rounded-xl overflow-hidden hover:border-blue-500/40 hover:shadow-lg hover:shadow-blue-500/5 transition-all"
+      className="group overflow-hidden rounded-2xl border border-cyan-300/10 bg-[#0c1423]/85 shadow-[0_24px_80px_rgba(0,0,0,0.22)] transition-all hover:border-cyan-300/35 hover:shadow-cyan-950/30"
     >
       <div className="p-4 cursor-pointer flex items-start justify-between gap-4" onClick={() => setIsExpanded(!isExpanded)}>
         <div className="flex-1">
@@ -96,7 +104,7 @@ const ClaimCard = ({ claim, index }: { claim: AEOClaim; index: number }) => {
               <ShieldCheck size={10} /> {claim.confidence} confidence
             </Badge>
           </div>
-          <h3 className="text-base font-semibold text-slate-100 leading-snug">
+          <h3 className="text-base font-semibold text-stone-100 leading-snug">
             {typeof claim.value === 'string' ? claim.value : claim.id}
           </h3>
           {typeof claim.value !== 'string' && <div className="mt-1">{renderValue(claim.value)}</div>}
@@ -112,7 +120,7 @@ const ClaimCard = ({ claim, index }: { claim: AEOClaim; index: number }) => {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="overflow-hidden bg-slate-950/50 border-t border-slate-800"
+            className="overflow-hidden border-t border-cyan-300/10 bg-black/25"
           >
             <div className="p-4 space-y-4">
               {claim.evidence && claim.evidence.length > 0 && (
@@ -185,30 +193,31 @@ export default function App() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#070b16] text-slate-200 font-sans selection:bg-blue-500/30">
+    <div className="min-h-screen overflow-x-hidden bg-[#030712] text-slate-200 font-sans selection:bg-cyan-300/25">
       {/* ambient glow */}
-      <div className="pointer-events-none fixed inset-0 opacity-60" style={{ background: 'radial-gradient(900px 500px at 80% -10%, rgba(37,99,235,0.10), transparent 60%)' }} />
+      <div className="pointer-events-none fixed inset-0 opacity-90" style={{ background: 'radial-gradient(900px 520px at 84% -12%, rgba(34,211,238,0.12), transparent 58%), radial-gradient(720px 420px at 0% 12%, rgba(129,140,248,0.14), transparent 60%)' }} />
+      <div className="pointer-events-none fixed inset-x-0 top-0 h-px bg-gradient-to-r from-emerald-300 via-cyan-300 to-violet-300" />
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-[#070b16]/85 backdrop-blur-md border-b border-slate-800">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <nav className="sticky top-0 z-50 border-b border-white/10 bg-[#050912]/88 backdrop-blur-xl">
+        <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-blue-900/40">
-              <Radar size={22} />
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-cyan-300/20 bg-cyan-300/10 font-mono text-sm font-bold tracking-widest text-cyan-200">
+              AEO
             </div>
             <div>
-              <h1 className="font-bold text-lg tracking-tight text-white">AEO <span className="text-blue-400">Visualizer</span></h1>
-              <p className="text-[10px] text-slate-500 font-mono tracking-widest uppercase">Protocol v0.1 · Kinetic Gain</p>
+              <h1 className="text-xl font-semibold tracking-tight text-stone-100">AEO Visualizer</h1>
+              <p className="font-mono text-[10px] uppercase tracking-[0.28em] text-slate-500">AEO Protocol Visualizer</p>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-1 p-1 bg-slate-900/80 border border-slate-800 rounded-lg">
+          <div className="hidden items-center gap-1 rounded-full border border-white/10 bg-white/[0.035] p-1 md:flex">
             {tabs.map((t) => (
               <button
                 key={t.id}
                 onClick={() => setView(t.id)}
-                className={`px-3.5 py-1.5 rounded-md text-sm font-medium transition-all ${
-                  view === t.id ? 'bg-slate-800 text-white shadow-sm' : 'text-slate-400 hover:text-slate-200'
+                className={`rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.14em] transition-all ${
+                  view === t.id ? 'bg-cyan-300 text-slate-950 shadow-[0_0_30px_rgba(34,211,238,0.22)]' : 'text-slate-400 hover:text-stone-100'
                 }`}
               >
                 <div className="flex items-center gap-2"><t.icon size={16} /> {t.label}</div>
@@ -220,7 +229,7 @@ export default function App() {
             href="https://github.com/mizcausevic-dev/aeo-protocol-spec"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2 text-slate-400 hover:text-white hover:bg-slate-800 rounded-lg transition-colors"
+            className="rounded-full border border-white/10 p-3 text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
             title="GitHub Repository"
           >
             <Github size={20} />
@@ -228,31 +237,68 @@ export default function App() {
         </div>
       </nav>
 
-      <main className="relative max-w-7xl mx-auto px-4 py-12">
+      <main className="relative mx-auto max-w-7xl px-4 py-8 sm:py-12">
+        {view === 'visualizer' && (
+          <section className="mb-8 overflow-hidden rounded-[2rem] border border-cyan-300/15 bg-[#0b1422]/85 p-6 shadow-[0_30px_120px_rgba(0,0,0,0.36)] sm:p-8 lg:p-10">
+            <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+              <div>
+                <div className="inline-flex rounded-full border border-emerald-300/20 bg-emerald-300/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.34em] text-emerald-300">
+                  Answer-engine operating layer
+                </div>
+                <h2 className="mt-6 max-w-4xl font-serif text-5xl font-black leading-[0.95] tracking-[-0.05em] text-stone-100 sm:text-6xl lg:text-7xl">
+                  Turn answer ambiguity into citation-ready proof.
+                </h2>
+                <p className="mt-6 max-w-3xl text-lg leading-8 text-slate-300">
+                  AEO Visualizer renders /.well-known/aeo.json into a board-readable proof surface for entity authority, claims, freshness rules, and citation preferences.
+                </p>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
+                <MetricCard label="Protocol" value={doc.aeo_version} detail="Current declaration version under review." />
+                <MetricCard label="Claims" value={String(doc.claims.length)} detail="Machine-readable facts with confidence labels." />
+                <MetricCard label="Freshness" value={`${doc.answer_constraints?.freshness_window_days ?? 0}d`} detail="Answer-engine freshness window." />
+              </div>
+            </div>
+          </section>
+        )}
+
+        <div className="mb-8 grid grid-cols-2 gap-2 md:hidden">
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => setView(t.id)}
+              className={`rounded-full border px-3 py-2 text-xs font-semibold uppercase tracking-[0.12em] ${
+                view === t.id ? 'border-cyan-300 bg-cyan-300 text-slate-950' : 'border-white/10 bg-white/[0.035] text-slate-400'
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
         <AnimatePresence mode="wait">
           {view === 'visualizer' && (
-            <motion.div key="viz" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            <motion.div key="viz" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} className="grid grid-cols-1 gap-6 lg:grid-cols-12">
               {/* Left: Entity & Authority */}
-              <div className="lg:col-span-5 space-y-8">
-                <div className="bg-slate-900/60 p-8 rounded-3xl border border-slate-800">
+              <div className="space-y-6 lg:col-span-5">
+                <div className="rounded-[1.6rem] border border-white/10 bg-white/[0.035] p-7 shadow-[0_24px_90px_rgba(0,0,0,0.28)]">
                   <div className="flex items-start justify-between mb-8">
                     <div>
-                      <Badge className="bg-blue-500/10 text-blue-300 border-blue-500/20 mb-2">{doc.entity.type}</Badge>
-                      <h2 className="text-4xl font-bold text-white mb-2 tracking-tight">{doc.entity.name}</h2>
+                      <Badge className="mb-3 border-cyan-300/20 bg-cyan-300/10 text-cyan-200">{doc.entity.type}</Badge>
+                      <h2 className="mb-2 text-4xl font-semibold tracking-tight text-stone-100">{doc.entity.name}</h2>
                       <div className="flex flex-wrap gap-2">
                         {doc.entity.aliases?.map((alias, i) => (
                           <span key={i} className="text-sm text-slate-500 italic">aka {alias}</span>
                         ))}
                       </div>
                     </div>
-                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 border border-blue-500/20">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-emerald-300/20 bg-emerald-300/10 text-emerald-200">
                       {doc.entity.type === 'Person' ? <Share2 size={30} /> : <Terminal size={30} />}
                     </div>
                   </div>
-                  <div className="space-y-4 pt-6 border-t border-slate-800">
+                  <div className="space-y-4 border-t border-white/10 pt-6">
                     <div className="flex items-center gap-3">
                       <LinkIcon size={16} className="text-slate-500" />
-                      <a href={doc.entity.canonical_url} target="_blank" rel="noopener noreferrer" className="text-sm text-blue-400 hover:underline flex items-center gap-1">
+                      <a href={doc.entity.canonical_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1 text-sm text-cyan-300 hover:underline">
                         {doc.entity.canonical_url} <ExternalLink size={12} />
                       </a>
                     </div>
@@ -264,14 +310,14 @@ export default function App() {
                 </div>
 
                 {/* Authority */}
-                <div className="bg-slate-950 rounded-3xl p-8 text-white border border-slate-800 shadow-xl">
+                <div className="rounded-[1.6rem] border border-cyan-300/10 bg-[#08111f] p-7 text-white shadow-xl">
                   <SectionHeader icon={ShieldCheck} title="Authority" subtitle="Primary sources & ed25519 verifications" />
                   <div className="space-y-6">
                     <div>
                       <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Primary Sources</h4>
                       <div className="space-y-2">
                         {doc.authority.primary_sources.map((src, i) => (
-                          <div key={i} className="flex items-center gap-2 p-2 bg-slate-900 rounded-lg text-sm border border-slate-800 hover:border-slate-600 transition-colors">
+                          <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-white/[0.035] p-2 text-sm transition-colors hover:border-cyan-300/30">
                             <CheckCircle size={14} className="text-emerald-500 shrink-0" />
                             <a href={src} target="_blank" rel="noopener noreferrer" className="truncate text-slate-300 hover:text-white">{src}</a>
                           </div>
@@ -283,7 +329,7 @@ export default function App() {
                         <h4 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-3">Verifications</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                           {doc.authority.verifications.map((v, i) => (
-                            <div key={i} className="flex flex-col p-3 bg-slate-900/70 rounded-xl border border-slate-800">
+                            <div key={i} className="flex flex-col rounded-xl border border-white/10 bg-white/[0.035] p-3">
                               <span className="text-[9px] text-slate-500 uppercase font-mono">{v.type}</span>
                               <span className="text-xs font-medium truncate text-slate-200">{v.value}</span>
                             </div>
@@ -320,7 +366,7 @@ export default function App() {
 
               {/* Right: Claims */}
               <div className="lg:col-span-7">
-                <div className="bg-slate-900/40 p-8 rounded-3xl border border-slate-800 min-h-full">
+                <div className="min-h-full rounded-[1.6rem] border border-white/10 bg-white/[0.03] p-7 shadow-[0_24px_90px_rgba(0,0,0,0.28)]">
                   <div className="flex items-center justify-between mb-8">
                     <SectionHeader icon={Activity} title="Authoritative Claims" subtitle={`Declaring ${doc.claims.length} machine-readable facts`} />
                     <div className="text-slate-500 flex items-center gap-2 text-xs font-medium">
@@ -343,17 +389,17 @@ export default function App() {
                           <p className="text-sm text-slate-400">How this entity prefers to be attributed</p>
                         </div>
                       </div>
-                      <div className="bg-blue-500/[0.05] p-6 rounded-2xl border border-blue-500/20">
+                      <div className="rounded-2xl border border-cyan-300/15 bg-cyan-300/[0.055] p-6">
                         <div className="mb-4">
-                          <h4 className="text-[10px] font-bold text-blue-400/70 uppercase mb-2">Preferred Attribution</h4>
+                          <h4 className="mb-2 text-[10px] font-bold uppercase text-cyan-300/80">Preferred Attribution</h4>
                           <p className="text-sm italic text-slate-300 leading-relaxed font-serif">"{doc.citation_preferences.preferred_attribution}"</p>
                         </div>
                         {doc.citation_preferences.canonical_links && (
                           <div>
-                            <h4 className="text-[10px] font-bold text-blue-400/70 uppercase mb-3">Canonical Link References</h4>
+                            <h4 className="mb-3 text-[10px] font-bold uppercase text-cyan-300/80">Canonical Link References</h4>
                             <div className="space-y-2">
                               {doc.citation_preferences.canonical_links.map((link, i) => (
-                                <a key={i} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-blue-400 hover:underline">
+                                <a key={i} href={link} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 text-xs text-cyan-300 hover:underline">
                                   <LinkIcon size={12} /> {link}
                                 </a>
                               ))}
